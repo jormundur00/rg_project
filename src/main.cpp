@@ -234,7 +234,7 @@ int main() {
 
     // load models
     // -----------
-    Model ourModel("resources/objects/bicycle/bicycle.obj");
+    Model ourModel("resources/objects/UFO_Saucer/UFO_Saucer.obj");
     ourModel.SetShaderTextureNamePrefix("material.");
 
     PointLight& pointLight = programState->pointLight;
@@ -296,7 +296,7 @@ int main() {
         model = glm::rotate(model,glm::radians(90.0f),glm::vec3(0,0,1));
         model = glm::rotate(model,glm::radians(90.0f),glm::vec3(0,1,0));
         //model = glm::rotate(model,glm::radians(90.0f),glm::vec3(1,0,0));
-        model = glm::scale(model, glm::vec3(0.05f));    // it's a bit too big for our scene, so scale it down
+        model = glm::scale(model, glm::vec3(0.01f));    // it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", model);
         ourModel.Draw(ourShader);
 
