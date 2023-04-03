@@ -142,7 +142,7 @@ int main() {
     // stbi_set_flip_vertically_on_load(true);
 
     programState = new ProgramState;
-    programState->LoadFromFile("resources/program_state.txt");
+    //programState->LoadFromFile("resources/program_state.txt");
     if (programState->ImGuiEnabled) {
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     }
@@ -161,7 +161,7 @@ int main() {
 
     // build and compile shaders
     // -------------------------
-    Shader ourShader("resources/shaders/2.model_lighting.vs", "resources/shaders/2.model_lighting.fs");
+    Shader objectShader("resources/shaders/object.vs", "resources/shaders/object.fs");
     Shader skyboxShader("resources/shaders/skybox.vs", "resources/shaders/skybox.fs");
 
     float skyboxVertices[] = {
@@ -234,8 +234,8 @@ int main() {
 
     // load models
     // -----------
-    Model ourModel("resources/objects/UFO_Saucer/UFO_Saucer.obj");
-    ourModel.SetShaderTextureNamePrefix("material.");
+    Model UFOModel("resources/objects/UFO_Saucer/UFO_Saucer.obj");
+    UFOModel.SetShaderTextureNamePrefix("material.");
 
     PointLight& pointLight = programState->pointLight;
     pointLight.position = glm::vec3(4.0f, 4.0, 0.0);
@@ -246,8 +246,6 @@ int main() {
     pointLight.constant = 1.0f;
     pointLight.linear = 0.09f;
     pointLight.quadratic = 0.032f;
-
-
 
     // draw in wireframe
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -272,23 +270,40 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // don't forget to enable shader before setting uniforms
-        ourShader.use();
-        pointLight.position = glm::vec3(4.0 * cos(currentFrame), 4.0f, 4.0 * sin(currentFrame));
-        ourShader.setVec3("pointLight.position", pointLight.position);
-        ourShader.setVec3("pointLight.ambient", pointLight.ambient);
-        ourShader.setVec3("pointLight.diffuse", pointLight.diffuse);
-        ourShader.setVec3("pointLight.specular", pointLight.specular);
-        ourShader.setFloat("pointLight.constant", pointLight.constant);
-        ourShader.setFloat("pointLight.linear", pointLight.linear);
-        ourShader.setFloat("pointLight.quadratic", pointLight.quadratic);
-        ourShader.setVec3("viewPosition", programState->camera.Position);
-        ourShader.setFloat("material.shininess", 32.0f);
+        objectShader.use();
+
+        objectShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
+        objectShader.setVec3("dirLight.ambient", 0.2f, 0.2f, 0.2f); // 0.05 for gloomy
+        objectShader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
+        objectShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+
+        pointLight.position = glm::vec3(4.0f, 4.0f, 4.0);
+        objectShader.setVec3("pointLight.position", pointLight.position);
+        objectShader.setVec3("pointLight.ambient", pointLight.ambient);
+        objectShader.setVec3("pointLight.diffuse", pointLight.diffuse);
+        objectShader.setVec3("pointLight.specular", pointLight.specular);
+        objectShader.setFloat("pointLight.constant", pointLight.constant);
+        objectShader.setFloat("pointLight.linear", pointLight.linear);
+        objectShader.setFloat("pointLight.quadratic", pointLight.quadratic);
+        objectShader.setVec3("viewPosition", programState->camera.Position);
+        objectShader.setFloat("material.shininess", 32.0f);
+
+        objectShader.setVec3("spotLight.position", programState->camera.Position);
+        objectShader.setVec3("spotLight.direction", programState->camera.Front);
+        objectShader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
+        objectShader.setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
+        objectShader.setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
+        objectShader.setFloat("spotLight.constant", 1.0f);
+        objectShader.setFloat("spotLight.linear", 0.09);
+        objectShader.setFloat("spotLight.quadratic", 0.032);
+        objectShader.setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
+        objectShader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(programState->camera.Zoom),
                                                 (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = programState->camera.GetViewMatrix();
-        ourShader.setMat4("projection", projection);
-        ourShader.setMat4("view", view);
+        objectShader.setMat4("projection", projection);
+        objectShader.setMat4("view", view);
 
         // render the loaded model
         glm::mat4 model = glm::mat4(1.0f);
@@ -297,8 +312,8 @@ int main() {
         model = glm::rotate(model,glm::radians(90.0f),glm::vec3(0,0,1));
         model = glm::rotate(model,glm::radians(90.0f),glm::vec3(0,1,0));
         model = glm::scale(model, glm::vec3(0.01f));    // it's a bit too big for our scene, so scale it down
-        ourShader.setMat4("model", model);
-        ourModel.Draw(ourShader);
+        objectShader.setMat4("model", model);
+        UFOModel.Draw(objectShader);
 
         // draw skybox as last
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
