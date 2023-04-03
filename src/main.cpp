@@ -293,15 +293,12 @@ int main() {
         // render the loaded model
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model,glm::vec3(0.0f)); // translate it down so it's at the center of the scene
+        model = glm::rotate(model,(float)glfwGetTime(),glm::vec3(0, 1, 0));
         model = glm::rotate(model,glm::radians(90.0f),glm::vec3(0,0,1));
         model = glm::rotate(model,glm::radians(90.0f),glm::vec3(0,1,0));
-        //model = glm::rotate(model,glm::radians(90.0f),glm::vec3(1,0,0));
         model = glm::scale(model, glm::vec3(0.01f));    // it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", model);
         ourModel.Draw(ourShader);
-
-        if (programState->ImGuiEnabled)
-            DrawImGui(programState);
 
         // draw skybox as last
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
@@ -316,6 +313,9 @@ int main() {
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
         glDepthFunc(GL_LESS); // set depth function back to default
+
+        if (programState->ImGuiEnabled)
+            DrawImGui(programState);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
