@@ -57,12 +57,14 @@ struct ProgramState {
     glm::vec3 clearColor = glm::vec3(0);
     bool ImGuiEnabled = false;
     Camera camera;
+    bool abduct = false; // alien abduction check
+    float cowHeight = -0.7f;
     bool CameraMouseMovementUpdateEnabled = true;
     glm::vec3 backpackPosition = glm::vec3(0.0f);
     float backpackScale = 1.0f;
     PointLight pointLight;
     ProgramState()
-            : camera(glm::vec3(0.0f, 0.0f, 3.0f)) {}
+            : camera(glm::vec3(0.0f, -0.7f, 3.0f)) {}
 
     void SaveToFile(std::string filename);
 
@@ -240,7 +242,10 @@ int main() {
     UFOModel.SetShaderTextureNamePrefix("material.");
     Model FieldModel("resources/objects/Field/Field.obj");
     FieldModel.SetShaderTextureNamePrefix("material.");
+    Model CowModel("resources/objects/Cow/Cow.obj");
+    CowModel.SetShaderTextureNamePrefix("material.");
 
+    // load lights
     PointLight& pointLight = programState->pointLight;
     pointLight.position = glm::vec3(4.0f, 4.0, 0.0);
     pointLight.ambient = glm::vec3(1.0, 1.0, 1.0);
@@ -267,7 +272,6 @@ int main() {
         // -----
         processInput(window);
 
-
         // render
         // ------
         glClearColor(programState->clearColor.r, programState->clearColor.g, programState->clearColor.b, 1.0f);
@@ -278,7 +282,7 @@ int main() {
 
         // Directional light for objects
         objectShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
-        objectShader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f); // 0.05 for gloomy
+        objectShader.setVec3("dirLight.ambient", 0.3f, 0.3f, 0.3f); // 0.05 for gloomy
         objectShader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
         objectShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
 
@@ -294,12 +298,18 @@ int main() {
         objectShader.setVec3("viewPosition", programState->camera.Position);
         objectShader.setFloat("material.shininess", 32.0f);
 
-        // Spotlight, currently coming out of the camera
         objectShader.setVec3("spotLight.position", glm::vec3(-6.0f, 1.0f, 4.0f));
         objectShader.setVec3("spotLight.direction", glm::vec3(0.0f, -1.0f , 0.0f));
         objectShader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
-        objectShader.setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
-        objectShader.setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
+        if(programState->abduct){
+            objectShader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
+            objectShader.setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
+            objectShader.setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
+        }
+        else {
+            objectShader.setVec3("spotLight.diffuse", 0.0f, 0.0f, 0.0f);
+            objectShader.setVec3("spotLight.specular", 0.0f, 0.0f, 0.0f);
+        }
         objectShader.setFloat("spotLight.constant", 1.0f);
         objectShader.setFloat("spotLight.linear", 0.09);
         objectShader.setFloat("spotLight.quadratic", 0.032);
@@ -329,12 +339,30 @@ int main() {
         objectShader.setMat4("model", model);
         FieldModel.Draw(objectShader);
 
+        // render the loaded Cow model (cow to be abducted)
+        if(!programState->abduct) {
+            model = glm::mat4(1.0f);
+            model = glm::translate(model,glm::vec3(-6.0f, -0.7f, 4.0f));
+            model = glm::scale(model, glm::vec3(0.005f));
+            objectShader.setMat4("model", model);
+            CowModel.Draw(objectShader);
+        }
+        else if(programState->cowHeight < 1.3f){
+            programState->cowHeight += 0.02f;
+            model = glm::mat4(1.0f);
+            model = glm::translate(model,glm::vec3(-6.0f, programState->cowHeight, 4.0f));
+            model = glm::scale(model, glm::vec3(0.005f));
+            objectShader.setMat4("model", model);
+            CowModel.Draw(objectShader);
+        }
+
         // draw skybox as last
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
         skyboxShader.use();
         view = glm::mat4(glm::mat3(programState->camera.GetViewMatrix())); // remove translation from the view matrix
         skyboxShader.setMat4("view", view);
         skyboxShader.setMat4("projection", projection);
+
         // skybox cube
         glBindVertexArray(skyboxVAO);
         glActiveTexture(GL_TEXTURE0);
@@ -380,6 +408,9 @@ void processInput(GLFWwindow *window) {
         programState->camera.ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         programState->camera.ProcessKeyboard(RIGHT, deltaTime);
+
+    if(glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
+        programState->abduct = true;
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
