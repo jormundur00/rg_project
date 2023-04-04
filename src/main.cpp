@@ -238,6 +238,8 @@ int main() {
     // -----------
     Model UFOModel("resources/objects/UFO_Saucer/UFO_Saucer.obj");
     UFOModel.SetShaderTextureNamePrefix("material.");
+    Model FieldModel("resources/objects/Field/Field.obj");
+    FieldModel.SetShaderTextureNamePrefix("material.");
 
     PointLight& pointLight = programState->pointLight;
     pointLight.position = glm::vec3(4.0f, 4.0, 0.0);
@@ -274,11 +276,13 @@ int main() {
         // don't forget to enable shader before setting uniforms
         objectShader.use();
 
+        // Directional light for objects
         objectShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
-        objectShader.setVec3("dirLight.ambient", 0.2f, 0.2f, 0.2f); // 0.05 for gloomy
+        objectShader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f); // 0.05 for gloomy
         objectShader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
         objectShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
 
+        // Point light for objects
         pointLight.position = glm::vec3(4.0f, 4.0f, 4.0);
         objectShader.setVec3("pointLight.position", pointLight.position);
         objectShader.setVec3("pointLight.ambient", pointLight.ambient);
@@ -290,8 +294,9 @@ int main() {
         objectShader.setVec3("viewPosition", programState->camera.Position);
         objectShader.setFloat("material.shininess", 32.0f);
 
-        objectShader.setVec3("spotLight.position", programState->camera.Position);
-        objectShader.setVec3("spotLight.direction", programState->camera.Front);
+        // Spotlight, currently coming out of the camera
+        objectShader.setVec3("spotLight.position", glm::vec3(-6.0f, 1.0f, 4.0f));
+        objectShader.setVec3("spotLight.direction", glm::vec3(0.0f, -1.0f , 0.0f));
         objectShader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
         objectShader.setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
         objectShader.setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
@@ -300,6 +305,7 @@ int main() {
         objectShader.setFloat("spotLight.quadratic", 0.032);
         objectShader.setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
         objectShader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
+
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(programState->camera.Zoom),
                                                 (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 100.0f);
@@ -307,15 +313,21 @@ int main() {
         objectShader.setMat4("projection", projection);
         objectShader.setMat4("view", view);
 
-        // render the loaded model
+        // render the loaded UFO model
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model,glm::vec3(0.0f)); // translate it down so it's at the center of the scene
+        model = glm::translate(model,glm::vec3(-6.0f, 1.0f, 4.0f));
         model = glm::rotate(model,(float)glfwGetTime(),glm::vec3(0, 1, 0));
         model = glm::rotate(model,glm::radians(90.0f),glm::vec3(0,0,1));
         model = glm::rotate(model,glm::radians(90.0f),glm::vec3(0,1,0));
-        model = glm::scale(model, glm::vec3(0.01f));    // it's a bit too big for our scene, so scale it down
+        model = glm::scale(model, glm::vec3(0.01f));
         objectShader.setMat4("model", model);
         UFOModel.Draw(objectShader);
+
+        // render the loaded Field model
+        model = glm::mat4(1.0f);
+        model = glm::scale(model, glm::vec3(0.3f));
+        objectShader.setMat4("model", model);
+        FieldModel.Draw(objectShader);
 
         // draw skybox as last
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
