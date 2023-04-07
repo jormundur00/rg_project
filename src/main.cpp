@@ -164,6 +164,7 @@ int main() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
+    glEnable(GL_BLEND);
 
     // build and compile shaders
     // -------------------------
@@ -218,13 +219,13 @@ int main() {
 
     float transparentVertices[] = {
             // positions         // texture Coords (swapped y coordinates because texture is flipped upside down)
-            0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
-            0.0f, -0.5f,  0.0f,  0.0f,  1.0f,
-            1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
+            0.0f,  0.5f,  0.0f,  0.0f,  0.0f, 0.0f, 0.0f, 1.0f,
+            0.0f, -0.5f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+            1.0f, -0.5f,  0.0f,  1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
 
-            0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
-            1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
-            1.0f,  0.5f,  0.0f,  1.0f,  0.0f
+            0.0f,  0.5f,  0.0f,  0.0f,  0.0f, 0.0f, 0.0f, 1.0f,
+            1.0f, -0.5f,  0.0f,  1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+            1.0f,  0.5f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f, 1.0f
     };
 
     // skybox VAO
@@ -258,20 +259,88 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, transparentVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(transparentVertices), transparentVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    glBindVertexArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
 
+    glBindVertexArray(0);
     unsigned int transparentTexture = loadTexture(FileSystem::getPath("resources/textures/Corn.png").c_str());
 
     vector<glm::vec3> vegetation
             {
-                    glm::vec3(-1.5f, 1.0f, -0.48f),
-                    glm::vec3( 1.5f, 1.0f, 0.51f),
-                    glm::vec3( 0.0f, 1.0f, 0.7f),
-                    glm::vec3(-0.3f, 1.0f, -2.3f),
-                    glm::vec3 (0.5f, 1.0f, -0.6f)
+                    glm::vec3(-8.0f, -0.8f, -2.0f),
+                    glm::vec3(-6.0f, -0.8f, -2.0f),
+                    glm::vec3(-4.0f, -0.8f, -2.0f),
+                    glm::vec3(-2.0f, -0.8f, -2.0f),
+                    glm::vec3(0.0f, -0.8f, -2.0f),
+                    glm::vec3(2.0f, -0.8f, -2.0f),
+                    glm::vec3(4.0f, -0.8f, -2.0f),
+                    glm::vec3(6.0f, -0.8f, -2.0f),
+                    glm::vec3(8.0f, -0.8f, -2.0f),
+                    glm::vec3(10.0f, -0.8f, -2.0f),
+                    glm::vec3(12.0f, -0.8f, -2.0f),
+
+                    glm::vec3(-8.0f, -0.8f, -3.0f),
+                    glm::vec3(-6.0f, -0.8f, -3.0f),
+                    glm::vec3(-4.0f, -0.8f, -3.0f),
+                    glm::vec3(-2.0f, -0.8f, -3.0f),
+                    glm::vec3(0.0f, -0.8f, -3.0f),
+                    glm::vec3(2.0f, -0.8f, -3.0f),
+                    glm::vec3(4.0f, -0.8f, -3.0f),
+                    glm::vec3(6.0f, -0.8f, -3.0f),
+                    glm::vec3(8.0f, -0.8f, -3.0f),
+                    glm::vec3(10.0f, -0.8f, -3.0f),
+                    glm::vec3(12.0f, -0.8f, -3.0f),
+
+                    glm::vec3(-8.0f, -0.8f, -4.0f),
+                    glm::vec3(-6.0f, -0.8f, -4.0f),
+                    glm::vec3(-4.0f, -0.8f, -4.0f),
+                    glm::vec3(-2.0f, -0.8f, -4.0f),
+                    glm::vec3(0.0f, -0.8f, -4.0f),
+                    glm::vec3(2.0f, -0.8f, -4.0f),
+                    glm::vec3(4.0f, -0.8f, -4.0f),
+                    glm::vec3(6.0f, -0.8f, -4.0f),
+                    glm::vec3(8.0f, -0.8f, -4.0f),
+                    glm::vec3(10.0f, -0.8f, -4.0f),
+                    glm::vec3(12.0f, -0.8f, -4.0f),
+
+                    glm::vec3(-8.0f, -0.8f, -5.0f),
+                    glm::vec3(-6.0f, -0.8f, -5.0f),
+                    glm::vec3(-4.0f, -0.8f, -5.0f),
+                    glm::vec3(-2.0f, -0.8f, -5.0f),
+                    glm::vec3(0.0f, -0.8f, -5.0f),
+                    glm::vec3(2.0f, -0.8f, -5.0f),
+                    glm::vec3(4.0f, -0.8f, -5.0f),
+                    glm::vec3(6.0f, -0.8f, -5.0f),
+                    glm::vec3(8.0f, -0.8f, -5.0f),
+                    glm::vec3(10.0f, -0.8f, -5.0f),
+                    glm::vec3(12.0f, -0.8f, -5.0f),
+
+                    glm::vec3(-8.0f, -0.8f, -6.0f),
+                    glm::vec3(-6.0f, -0.8f, -6.0f),
+                    glm::vec3(-4.0f, -0.8f, -6.0f),
+                    glm::vec3(-2.0f, -0.8f, -6.0f),
+                    glm::vec3(0.0f, -0.8f, -6.0f),
+                    glm::vec3(2.0f, -0.8f, -6.0f),
+                    glm::vec3(4.0f, -0.8f, -6.0f),
+                    glm::vec3(6.0f, -0.8f, -6.0f),
+                    glm::vec3(8.0f, -0.8f, -6.0f),
+                    glm::vec3(10.0f, -0.8f, -6.0f),
+                    glm::vec3(12.0f, -0.8f, -6.0f),
+
+                    glm::vec3(-8.0f, -0.8f, -7.0f),
+                    glm::vec3(-6.0f, -0.8f, -7.0f),
+                    glm::vec3(-4.0f, -0.8f, -7.0f),
+                    glm::vec3(-2.0f, -0.8f, -7.0f),
+                    glm::vec3(0.0f, -0.8f, -7.0f),
+                    glm::vec3(2.0f, -0.8f, -7.0f),
+                    glm::vec3(4.0f, -0.8f, -7.0f),
+                    glm::vec3(6.0f, -0.8f, -7.0f),
+                    glm::vec3(8.0f, -0.8f, -7.0f),
+                    glm::vec3(10.0f, -0.8f, -7.0f),
+                    glm::vec3(12.0f, -0.8f, -7.0f)
             };
 
     blendingShader.use();
@@ -397,6 +466,59 @@ int main() {
             CowModel.Draw(objectShader);
         }
 
+        // vegetation
+        blendingShader.use();
+
+        // Directional light for objects
+        blendingShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
+        blendingShader.setVec3("dirLight.ambient", 0.3f, 0.3f, 0.3f); // 0.05 for gloomy
+        blendingShader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
+        blendingShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+
+        // Point light for objects
+        pointLight.position = glm::vec3(4.0f, 4.0f, 4.0);
+        blendingShader.setVec3("pointLight.position", pointLight.position);
+        blendingShader.setVec3("pointLight.ambient", pointLight.ambient);
+        blendingShader.setVec3("pointLight.diffuse", pointLight.diffuse);
+        blendingShader.setVec3("pointLight.specular", pointLight.specular);
+        blendingShader.setFloat("pointLight.constant", pointLight.constant);
+        blendingShader.setFloat("pointLight.linear", pointLight.linear);
+        blendingShader.setFloat("pointLight.quadratic", pointLight.quadratic);
+        blendingShader.setVec3("viewPosition", programState->camera.Position);
+        blendingShader.setFloat("material.shininess", 32.0f);
+
+        blendingShader.setVec3("spotLight.position", glm::vec3(-6.0f, 1.0f, 4.0f));
+        blendingShader.setVec3("spotLight.direction", glm::vec3(0.0f, -1.0f , 0.0f));
+        blendingShader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
+        if(programState->abduct){
+            blendingShader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
+            blendingShader.setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
+            blendingShader.setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
+        }
+        else {
+            blendingShader.setVec3("spotLight.diffuse", 0.0f, 0.0f, 0.0f);
+            blendingShader.setVec3("spotLight.specular", 0.0f, 0.0f, 0.0f);
+        }
+        blendingShader.setFloat("spotLight.constant", 1.0f);
+        blendingShader.setFloat("spotLight.linear", 0.09);
+        blendingShader.setFloat("spotLight.quadratic", 0.032);
+        blendingShader.setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
+        blendingShader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
+
+        blendingShader.setMat4("view", view);
+        blendingShader.setMat4("projection", projection);
+
+        glBindVertexArray(transparentVAO);
+        glBindTexture(GL_TEXTURE_2D, transparentTexture);
+        for (unsigned int i = 0; i < vegetation.size(); i++)
+        {
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, vegetation[i]);
+            //model = glm::scale(model, glm::vec3(0.5f));
+            blendingShader.setMat4("model", model);
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+        }
+
         // draw skybox as last
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
         skyboxShader.use();
@@ -411,18 +533,6 @@ int main() {
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
         glDepthFunc(GL_LESS); // set depth function back to default
-
-        // vegetation
-        blendingShader.use();
-        glBindVertexArray(transparentVAO);
-        glBindTexture(GL_TEXTURE_2D, transparentTexture);
-        for (unsigned int i = 0; i < vegetation.size(); i++)
-        {
-            model = glm::mat4(1.0f);
-            model = glm::translate(model, vegetation[i]);
-            blendingShader.setMat4("model", model);
-            glDrawArrays(GL_TRIANGLES, 0, 6);
-        }
 
         if (programState->ImGuiEnabled)
             DrawImGui(programState);
