@@ -467,6 +467,7 @@ int main() {
         }
 
         // vegetation
+        glDisable(GL_CULL_FACE);
         blendingShader.use();
 
         // Directional light for objects
@@ -518,6 +519,8 @@ int main() {
             blendingShader.setMat4("model", model);
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
+
+        glEnable(GL_CULL_FACE);
 
         // draw skybox as last
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
