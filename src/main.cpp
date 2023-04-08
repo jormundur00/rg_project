@@ -341,6 +341,12 @@ int main() {
                     glm::vec3(12.0f, -0.8f, -7.0f)
             };
 
+    vector<glm::vec3> cows {
+        glm::vec3(-4.0f, -0.7f, 6.0f),
+        glm::vec3(-7.5f, -0.75f, 1.3f),
+        glm::vec3(-8.0f, -0.7f, 5.0f)
+    };
+
     blendingShader.use();
     blendingShader.setInt("texture1", 0);
 
@@ -352,6 +358,8 @@ int main() {
     FieldModel.SetShaderTextureNamePrefix("material.");
     Model CowModel("resources/objects/Cow/Cow.obj");
     CowModel.SetShaderTextureNamePrefix("material.");
+    Model TruckModel("resources/objects/Truck/Truck.obj");
+    TruckModel.SetShaderTextureNamePrefix("material.");
 
     // load lights
     PointLight& pointLight = programState->pointLight;
@@ -464,13 +472,33 @@ int main() {
             CowModel.Draw(objectShader);
         }
 
+        //render the regular cows
+        for (unsigned int i = 0; i < cows.size(); i++)
+        {
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, cows[i]);
+            model = glm::scale(model, glm::vec3(0.005f));
+            objectShader.setMat4("model", model);
+            CowModel.Draw(objectShader);
+        }
+
+        //render the vehicle
+        model = glm::mat4(1.0f);
+        model = glm::translate(model,glm::vec3(0.0f, -0.77f, 8.0f));
+        model = glm::rotate(model,glm::radians(-90.0f),glm::vec3(0,1,0));
+        model = glm::rotate(model,glm::radians(-5.0f),glm::vec3(0,0,1));
+        model = glm::rotate(model,glm::radians(-15.0f),glm::vec3(1,0,0));
+        model = glm::scale(model, glm::vec3(0.03f));
+        objectShader.setMat4("model", model);
+        TruckModel.Draw(objectShader);
+
         // vegetation
         glDisable(GL_CULL_FACE);
         blendingShader.use();
 
         // Directional light for objects
         blendingShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
-        blendingShader.setVec3("dirLight.ambient", 0.3f, 0.3f, 0.3f); // 0.05 for gloomy
+        blendingShader.setVec3("dirLight.ambient", 0.f, 0.3f, 0.3f); // 0.05 for gloomy
         blendingShader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
         blendingShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
 
