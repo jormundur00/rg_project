@@ -60,6 +60,7 @@ struct ProgramState {
     bool ImGuiEnabled = false;
     Camera camera;
     bool abduct = false; // alien abduction check
+    bool flashlight = false;
     float cowHeight = -0.7f;
     bool CameraMouseMovementUpdateEnabled = true;
     PointLight pointLight;
@@ -414,23 +415,41 @@ int main() {
         objectShader.setVec3("viewPosition", programState->camera.Position);
         objectShader.setFloat("material.shininess", 32.0f);
 
-        objectShader.setVec3("spotLight.position", glm::vec3(-6.0f, 1.0f, 4.0f));
-        objectShader.setVec3("spotLight.direction", glm::vec3(0.0f, -1.0f , 0.0f));
-        objectShader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
+        objectShader.setVec3("spotLights[0].position", glm::vec3(-6.0f, 1.0f, 4.0f));
+        objectShader.setVec3("spotLights[0].direction", glm::vec3(0.0f, -1.0f , 0.0f));
+        objectShader.setVec3("spotLights[0].ambient", 0.0f, 0.0f, 0.0f);
         if(programState->abduct){
-            objectShader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
-            objectShader.setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
-            objectShader.setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
+            objectShader.setVec3("spotLights[0].diffuse", 1.0f, 1.0f, 1.0f);
+            objectShader.setVec3("spotLights[0].specular", 1.0f, 1.0f, 1.0f);
         }
         else {
-            objectShader.setVec3("spotLight.diffuse", 0.0f, 0.0f, 0.0f);
-            objectShader.setVec3("spotLight.specular", 0.0f, 0.0f, 0.0f);
+            objectShader.setVec3("spotLights[0].diffuse", 0.0f, 0.0f, 0.0f);
+            objectShader.setVec3("spotLights[0].specular", 0.0f, 0.0f, 0.0f);
         }
-        objectShader.setFloat("spotLight.constant", 1.0f);
-        objectShader.setFloat("spotLight.linear", 0.09);
-        objectShader.setFloat("spotLight.quadratic", 0.032);
-        objectShader.setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
-        objectShader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
+        objectShader.setFloat("spotLights[0].constant", 1.0f);
+        objectShader.setFloat("spotLights[0].linear", 0.09);
+        objectShader.setFloat("spotLights[0].quadratic", 0.032);
+        objectShader.setFloat("spotLights[0].cutOff", glm::cos(glm::radians(12.5f)));
+        objectShader.setFloat("spotLights[0].outerCutOff", glm::cos(glm::radians(15.0f)));
+
+        // flashlight
+
+        objectShader.setVec3("spotLights[1].position", programState->camera.Position);
+        objectShader.setVec3("spotLights[1].direction", programState->camera.Front);
+        objectShader.setVec3("spotLights[1].ambient", 0.0f, 0.0f, 0.0f);
+        if(programState->flashlight){
+            objectShader.setVec3("spotLights[1].diffuse", 1.0f, 1.0f, 1.0f);
+            objectShader.setVec3("spotLights[1].specular", 1.0f, 1.0f, 1.0f);
+        }
+        else {
+            objectShader.setVec3("spotLights[1].diffuse", 0.0f, 0.0f, 0.0f);
+            objectShader.setVec3("spotLights[1].specular", 0.0f, 0.0f, 0.0f);
+        }
+        objectShader.setFloat("spotLights[1].constant", 1.0f);
+        objectShader.setFloat("spotLights[1].linear", 0.09);
+        objectShader.setFloat("spotLights[1].quadratic", 0.032);
+        objectShader.setFloat("spotLights[1].cutOff", glm::cos(glm::radians(12.5f)));
+        objectShader.setFloat("spotLights[1].outerCutOff", glm::cos(glm::radians(15.0f)));
 
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(programState->camera.Zoom),
@@ -514,23 +533,42 @@ int main() {
         blendingShader.setVec3("viewPosition", programState->camera.Position);
         blendingShader.setFloat("material.shininess", 32.0f);
 
-        blendingShader.setVec3("spotLight.position", glm::vec3(-6.0f, 1.0f, 4.0f));
-        blendingShader.setVec3("spotLight.direction", glm::vec3(0.0f, -1.0f , 0.0f));
-        blendingShader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
+        blendingShader.setVec3("spotLights[0].position", glm::vec3(-6.0f, 1.0f, 4.0f));
+        blendingShader.setVec3("spotLights[0].direction", glm::vec3(0.0f, -1.0f , 0.0f));
+        blendingShader.setVec3("spotLights[0].ambient", 0.0f, 0.0f, 0.0f);
         if(programState->abduct){
-            blendingShader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
-            blendingShader.setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
-            blendingShader.setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
+            blendingShader.setVec3("spotLights[0].ambient", 0.0f, 0.0f, 0.0f);
+            blendingShader.setVec3("spotLights[0].diffuse", 1.0f, 1.0f, 1.0f);
+            blendingShader.setVec3("spotLights[0].specular", 1.0f, 1.0f, 1.0f);
         }
         else {
-            blendingShader.setVec3("spotLight.diffuse", 0.0f, 0.0f, 0.0f);
-            blendingShader.setVec3("spotLight.specular", 0.0f, 0.0f, 0.0f);
+            blendingShader.setVec3("spotLights[0].diffuse", 0.0f, 0.0f, 0.0f);
+            blendingShader.setVec3("spotLights[0].specular", 0.0f, 0.0f, 0.0f);
         }
-        blendingShader.setFloat("spotLight.constant", 1.0f);
-        blendingShader.setFloat("spotLight.linear", 0.09);
-        blendingShader.setFloat("spotLight.quadratic", 0.032);
-        blendingShader.setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
-        blendingShader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
+        blendingShader.setFloat("spotLights[0].constant", 1.0f);
+        blendingShader.setFloat("spotLights[0].linear", 0.09);
+        blendingShader.setFloat("spotLights[0].quadratic", 0.032);
+        blendingShader.setFloat("spotLights[0].cutOff", glm::cos(glm::radians(12.5f)));
+        blendingShader.setFloat("spotLights[0].outerCutOff", glm::cos(glm::radians(15.0f)));
+
+        // flashlight
+
+        blendingShader.setVec3("spotLights[1].position", programState->camera.Position);
+        blendingShader.setVec3("spotLights[1].direction", programState->camera.Front);
+        blendingShader.setVec3("spotLights[1].ambient", 0.0f, 0.0f, 0.0f);
+        if(programState->flashlight){
+            blendingShader.setVec3("spotLights[1].diffuse", 1.0f, 1.0f, 1.0f);
+            blendingShader.setVec3("spotLights[1].specular", 1.0f, 1.0f, 1.0f);
+        }
+        else {
+            blendingShader.setVec3("spotLights[1].diffuse", 0.0f, 0.0f, 0.0f);
+            blendingShader.setVec3("spotLights[1].specular", 0.0f, 0.0f, 0.0f);
+        }
+        blendingShader.setFloat("spotLights[1].constant", 1.0f);
+        blendingShader.setFloat("spotLights[1].linear", 0.09);
+        blendingShader.setFloat("spotLights[1].quadratic", 0.032);
+        blendingShader.setFloat("spotLights[1].cutOff", glm::cos(glm::radians(12.5f)));
+        blendingShader.setFloat("spotLights[1].outerCutOff", glm::cos(glm::radians(15.0f)));
 
         blendingShader.setMat4("view", view);
         blendingShader.setMat4("projection", projection);
@@ -603,6 +641,15 @@ void processInput(GLFWwindow *window) {
 
     if(glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
         programState->abduct = true;
+
+    if(glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS){
+        if(programState->flashlight){
+            programState->flashlight = false;
+        }
+        else{
+            programState->flashlight = true;
+        }
+    }
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

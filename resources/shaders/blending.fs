@@ -36,6 +36,8 @@ struct SpotLight {
     vec3 specular;
 };
 
+#define NR_SPOTLIGHTS 2
+
 uniform sampler2D texture1;
 
 in vec3 FragPos;
@@ -45,7 +47,7 @@ in vec2 TexCoords;
 uniform vec3 viewPos;
 uniform DirLight dirLight;
 uniform PointLight pointLight;
-uniform SpotLight spotLight;
+uniform SpotLight spotLights[NR_SPOTLIGHTS];
 
 // function prototypes
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
@@ -70,7 +72,9 @@ void main()
     // phase 2: point lights
     //result += CalcPointLight(pointLight, norm, FragPos, viewDir);
     // phase 3: spot light
-    result += CalcSpotLight(spotLight, norm, FragPos, viewDir);
+    for(int i=0; i<NR_SPOTLIGHTS; i++){
+        result += CalcSpotLight(spotLights[i], norm, FragPos, viewDir);
+    }
 
     if(texColor.a < 0.1){
         discard;
