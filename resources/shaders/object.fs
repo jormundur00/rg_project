@@ -74,7 +74,7 @@ void main()
     // phase 1: directional lighting
     vec3 result = CalcDirLight(dirLight, norm, viewDir);
     // phase 2: point lights
-    //result += CalcPointLight(pointLight, norm, FragPos, viewDir);
+    result += CalcPointLight(pointLight, norm, FragPos, viewDir);
     // phase 3: spot light
     for(int i=0; i<NR_SPOTLIGHTS; i++){
             result += CalcSpotLight(spotLights[i], norm, FragPos, viewDir);

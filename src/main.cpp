@@ -368,6 +368,8 @@ int main() {
     CowModel.SetShaderTextureNamePrefix("material.");
     Model TruckModel("resources/objects/Truck/Truck.obj");
     TruckModel.SetShaderTextureNamePrefix("material.");
+    Model FireModel("resources/objects/Fire/Fire.obj");
+    FireModel.SetShaderTextureNamePrefix("material.");
 
     // configure (floating point) framebuffers
     // ---------------------------------------
@@ -430,14 +432,14 @@ int main() {
 
     // load lights
     PointLight& pointLight = programState->pointLight;
-    pointLight.position = glm::vec3(4.0f, 4.0, 0.0);
-    pointLight.ambient = glm::vec3(1.0, 1.0, 1.0);
+    pointLight.position = glm::vec3(7.0f, -0.3f, 3.0f);
+    pointLight.ambient = glm::vec3(0.1, 0.1, 0.1);
     pointLight.diffuse = glm::vec3(0.6, 0.6, 0.6);
     pointLight.specular = glm::vec3(1.0, 1.0, 1.0);
 
     pointLight.constant = 1.0f;
-    pointLight.linear = 0.09f;
-    pointLight.quadratic = 0.032f;
+    pointLight.linear = 0.5f;
+    pointLight.quadratic = 0.3f;
 
     // draw in wireframe
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -474,7 +476,7 @@ int main() {
         objectShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
 
         // Point light for objects
-        pointLight.position = glm::vec3(4.0f, 4.0f, 4.0);
+        pointLight.position = glm::vec3(7.0f, -0.3f, 3.0f);
         objectShader.setVec3("pointLight.position", pointLight.position);
         objectShader.setVec3("pointLight.ambient", pointLight.ambient);
         objectShader.setVec3("pointLight.diffuse", pointLight.diffuse);
@@ -581,6 +583,14 @@ int main() {
         objectShader.setMat4("model", model);
         TruckModel.Draw(objectShader);
 
+        //render the fire
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(7.0f, -0.65f, 3.0f));
+        model = glm::rotate(model, glm::radians(-5.0f),glm::vec3(1,0,1));
+        model = glm::scale(model, glm::vec3(0.6f));
+        objectShader.setMat4("model", model);
+        FireModel.Draw(objectShader);
+
         // vegetation
         glDisable(GL_CULL_FACE);
         blendingShader.use();
@@ -592,7 +602,7 @@ int main() {
         blendingShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
 
         // Point light for objects
-        pointLight.position = glm::vec3(4.0f, 4.0f, 4.0);
+        pointLight.position = glm::vec3(7.0f, -0.3f, 3.0f);
         blendingShader.setVec3("pointLight.position", pointLight.position);
         blendingShader.setVec3("pointLight.ambient", pointLight.ambient);
         blendingShader.setVec3("pointLight.diffuse", pointLight.diffuse);
