@@ -1,6 +1,8 @@
 # Abduction on the farmlands
 Projekat iz kursa Računarska grafika na Matematičkom fakultetu 2022/2023 akademske godine.
 
+Snimak: https://www.youtube.com/watch?v=uOFN9LiUgRw
+
 # Uputstvo za pokretanje
 1. `git clone https://github.com/jormundur00/rg_project`
 2. CLion -> Open -> path/to/my/project_base
